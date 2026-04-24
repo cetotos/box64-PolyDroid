@@ -640,7 +640,6 @@ void iFuui(x64emu_t *emu, uintptr_t fnc);
 void iFuuu(x64emu_t *emu, uintptr_t fnc);
 void iFuuU(x64emu_t *emu, uintptr_t fnc);
 void iFuup(x64emu_t *emu, uintptr_t fnc);
-void iFuLL(x64emu_t *emu, uintptr_t fnc);
 void iFuLp(x64emu_t *emu, uintptr_t fnc);
 void iFupi(x64emu_t *emu, uintptr_t fnc);
 void iFupI(x64emu_t *emu, uintptr_t fnc);
@@ -829,7 +828,6 @@ void fFfff(x64emu_t *emu, uintptr_t fnc);
 void fFffp(x64emu_t *emu, uintptr_t fnc);
 void fFlpl(x64emu_t *emu, uintptr_t fnc);
 void fFppi(x64emu_t *emu, uintptr_t fnc);
-void fFppL(x64emu_t *emu, uintptr_t fnc);
 void fFppp(x64emu_t *emu, uintptr_t fnc);
 void dFuud(x64emu_t *emu, uintptr_t fnc);
 void dFddd(x64emu_t *emu, uintptr_t fnc);
@@ -1197,6 +1195,7 @@ void cFpipp(x64emu_t *emu, uintptr_t fnc);
 void iFEiiu(x64emu_t *emu, uintptr_t fnc);
 void iFEiip(x64emu_t *emu, uintptr_t fnc);
 void iFEiiN(x64emu_t *emu, uintptr_t fnc);
+void iFEiLp(x64emu_t *emu, uintptr_t fnc);
 void iFEipp(x64emu_t *emu, uintptr_t fnc);
 void iFEipV(x64emu_t *emu, uintptr_t fnc);
 void iFEipA(x64emu_t *emu, uintptr_t fnc);
@@ -2259,7 +2258,6 @@ void LFpLpuu(x64emu_t *emu, uintptr_t fnc);
 void LFpLpLi(x64emu_t *emu, uintptr_t fnc);
 void LFpLpLp(x64emu_t *emu, uintptr_t fnc);
 void LFpLppu(x64emu_t *emu, uintptr_t fnc);
-void LFpLppL(x64emu_t *emu, uintptr_t fnc);
 void LFpLppp(x64emu_t *emu, uintptr_t fnc);
 void LFppuup(x64emu_t *emu, uintptr_t fnc);
 void LFpplLp(x64emu_t *emu, uintptr_t fnc);
@@ -4165,6 +4163,24 @@ void iFEipiip(x64emu_t *emu, uintptr_t fnc);
 void iFEipipp(x64emu_t *emu, uintptr_t fnc);
 #endif
 
+#if defined(ANDROID)
+void lFEl(x64emu_t *emu, uintptr_t fnc);
+void vFEpL(x64emu_t *emu, uintptr_t fnc);
+void uFEup(x64emu_t *emu, uintptr_t fnc);
+void iFEipL(x64emu_t *emu, uintptr_t fnc);
+void iFEuip(x64emu_t *emu, uintptr_t fnc);
+void fFEppp(x64emu_t *emu, uintptr_t fnc);
+void dFEppp(x64emu_t *emu, uintptr_t fnc);
+void LFEppLp(x64emu_t *emu, uintptr_t fnc);
+void LFEpLppp(x64emu_t *emu, uintptr_t fnc);
+#endif
+
+#if !defined(ANDROID)
+void iFuLL(x64emu_t *emu, uintptr_t fnc);
+void fFppL(x64emu_t *emu, uintptr_t fnc);
+void LFpLppL(x64emu_t *emu, uintptr_t fnc);
+#endif
+
 #if !defined(STATICBUILD)
 void lFiN(x64emu_t *emu, uintptr_t fnc);
 void iFEpu(x64emu_t *emu, uintptr_t fnc);
@@ -4179,10 +4195,6 @@ void iFEiipup(x64emu_t *emu, uintptr_t fnc);
 void iFEpipppL(x64emu_t *emu, uintptr_t fnc);
 void iFiiULippp(x64emu_t *emu, uintptr_t fnc);
 void lFpLpdddddd(x64emu_t *emu, uintptr_t fnc);
-#endif
-
-#if defined(PPC64LE)
-void iFEiLp(x64emu_t *emu, uintptr_t fnc);
 #endif
 
 #if !defined(PPC64LE)

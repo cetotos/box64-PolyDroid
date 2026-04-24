@@ -16,6 +16,7 @@ typedef int32_t (*iFv_t)(void);
 typedef int32_t (*iFu_t)(uint32_t);
 typedef int32_t (*iFp_t)(void*);
 typedef void (*vFpi_t)(void*, int32_t);
+typedef int32_t (*iFip_t)(int32_t, void*);
 typedef int32_t (*iFpi_t)(void*, int32_t);
 typedef int32_t (*iFpL_t)(void*, uintptr_t);
 typedef int32_t (*iFpp_t)(void*, void*);
@@ -53,6 +54,8 @@ typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 	GO(pthread_setattr_default_np, iFp_t) \
 	GO(_pthread_cleanup_pop, vFpi_t) \
 	GO(_pthread_cleanup_pop_restore, vFpi_t) \
+	GO(pthread_setcancelstate, iFip_t) \
+	GO(pthread_setcanceltype, iFip_t) \
 	GO(__pthread_mutexattr_settype, iFpi_t) \
 	GO(pthread_attr_setdetachstate, iFpi_t) \
 	GO(pthread_attr_setinheritsched, iFpi_t) \

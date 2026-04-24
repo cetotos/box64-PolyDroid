@@ -174,7 +174,8 @@ int FUNC(_init)(library_t* lib, box64context_t* box64)
 #endif
     {
 #ifndef STATICBUILD
-        lib->w.lib = dlopen(MAPNAME(Name), RTLD_LAZY | RTLD_GLOBAL);
+        if(!lib->w.lib)  // PRE_INIT may have already loaded it
+            lib->w.lib = dlopen(MAPNAME(Name), RTLD_LAZY | RTLD_GLOBAL);
         if(!lib->w.lib) {
 #ifdef ALTNAME
             lib->w.lib = dlopen(ALTNAME, RTLD_LAZY | RTLD_GLOBAL);

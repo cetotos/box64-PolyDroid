@@ -541,7 +541,6 @@ EXPORT int my_pthread_attr_setstackaddr(x64emu_t* emu, pthread_attr_t* attr, voi
 	return 0;
 	//return pthread_attr_setstackaddr(getAlignedAttr(attr), addr);
 }
-#ifndef ANDROID
 EXPORT int my_pthread_getattr_np(x64emu_t* emu, pthread_t thread_id, pthread_attr_t* attr)
 {
 	(void)emu;
@@ -557,16 +556,21 @@ EXPORT int my_pthread_getattr_np(x64emu_t* emu, pthread_t thread_id, pthread_att
 //printf_log(LOG_INFO, "pthread_getattr_np called for self, stack=%p, sz=%lx\n", stack, sz);
 		if (!sz) {
 			// get default stack size
+#ifndef ANDROID
 			pthread_attr_t attr;
 			pthread_getattr_default_np(&attr);
 			pthread_attr_getstacksize(&attr, &sz);
 			pthread_attr_destroy(&attr);
+#else
+			sz = 2*1024*1024; // default 2MB
+#endif
 			// should stack be adjusted?
 		}
 		AddStackSize((uintptr_t)attr, stack, sz);
 	}
 	return ret;
 }
+#ifndef ANDROID
 EXPORT int my_pthread_getattr_default_np(x64emu_t* emu, pthread_attr_t* attr)
 {
 	(void)emu;

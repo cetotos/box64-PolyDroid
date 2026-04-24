@@ -61,6 +61,7 @@ int my_stat(x64emu_t *emu, void* filename, void* buf);
 int my_lstat(x64emu_t *emu, void* filename, void* buf);
 int my_fstat(x64emu_t *emu, int fd, void* buf);
 int my_fstatat(x64emu_t *emu, int fd, const char* path, void* buf, int flags);
+int my_sched_getaffinity(x64emu_t* emu, int pid, size_t cpusetsize, void* mask);
 
 int my_sigaction(x64emu_t* emu, int signum, const x64_sigaction_t *act, x64_sigaction_t *oldact);
 int my_sigaltstack(x64emu_t* emu, const x64_stack_t* ss, x64_stack_t* oss);
@@ -251,7 +252,6 @@ static const scwrap_t syscallwrap[] = {
     #endif
     [202] = {__NR_futex, 6},
     [203] = {__NR_sched_setaffinity, 3},
-    [204] = {__NR_sched_getaffinity, 3},
     [206] = {__NR_io_setup, 2},
     [207] = {__NR_io_destroy, 1},
     [208] = {__NR_io_getevents, 4},
@@ -501,6 +501,9 @@ void EXPORT x64Syscall_linux(x64emu_t *emu)
 {
     RESET_FLAGS(emu);
     uint32_t s = R_EAX; // EAX? (syscalls only go up to 547 anyways)
+    if(s == 204)
+        printf_log(LOG_NONE, "*** SYSCALL 204 (sched_getaffinity) hit! pid=%d cpusetsize=%lu mask=%p ***\n",
+                   (int)R_RDI, (unsigned long)R_RSI, (void*)R_RDX);
     int log = 0;
     char t_buff[256] = "\0";
     char t_buffret[128] = "\0";
@@ -847,6 +850,12 @@ void EXPORT x64Syscall_linux(x64emu_t *emu)
             if(S_RAX==-1)
                 S_RAX = -errno;
             break;
+        case 204: // sys_sched_getaffinity
+
+            S_RAX = my_sched_getaffinity(emu, S_EDI, (size_t)R_RSI, (void*)R_RDX);
+            if(S_RAX==-1)
+                S_RAX = -errno;
+            break;
         #ifndef __NR_setrlimit
         case 160:
             S_RAX = setrlimit(S_EDI, (void*)R_RSI);
@@ -1009,6 +1018,9 @@ long EXPORT my_syscall(x64emu_t *emu)
     static uint32_t warned = 0;
     uint32_t s = R_EDI;
     printf_dump(LOG_DEBUG, "%04d| %p: Calling libc syscall 0x%02X (%d) %p %p %p %p %p\n", GetTID(), (void*)R_RIP, s, s, (void*)R_RSI, (void*)R_RDX, (void*)R_RCX, (void*)R_R8, (void*)R_R9);
+    if(s == 204)
+        printf_log(LOG_NONE, "*** LIBC SYSCALL 204 (sched_getaffinity) hit! pid=%d cpusetsize=%lu mask=%p ***\n",
+                   (int)R_RSI, (unsigned long)R_RDX, (void*)R_RCX);
     // check wrapper first
     uint32_t cnt = sizeof(syscallwrap) / sizeof(scwrap_t);
     if(s<cnt && syscallwrap[s].nats) {
@@ -1213,6 +1225,9 @@ long EXPORT my_syscall(x64emu_t *emu)
         #endif
         case 158: // sys_arch_prctl
             return my_arch_prctl(emu, S_ESI, (void*)R_RDX);
+        case 204: // sys_sched_getaffinity
+        
+            return my_sched_getaffinity(emu, S_ESI, (size_t)R_RDX, (void*)R_RCX);
         #ifndef __NR_setrlimit
         case 160:
             return setrlimit(S_ESI, (void*)R_RDX);

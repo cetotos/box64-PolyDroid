@@ -3420,6 +3420,253 @@ void InitCpuModel()
 void ctSetup()
 {
 }
+
+#include <locale.h>
+#include <langinfo.h>
+#include <wctype.h>
+#include <time.h>
+
+EXPORT void* my___newlocale(x64emu_t* emu, int mask, const char* locale, void* base)
+{
+    (void)emu;
+    void* ret = (void*)newlocale(mask, locale, (locale_t)base);
+    if (!ret) {
+        ret = (void*)newlocale(mask, "C", (locale_t)base);
+    }
+    if (!ret) {
+        ret = (void*)newlocale(LC_ALL_MASK, "C", (locale_t)0);
+    }
+    if (!ret) {
+        ret = (void*)duplocale(LC_GLOBAL_LOCALE);
+    }
+    return ret;
+}
+EXPORT void my___freelocale(x64emu_t* emu, void* loc)
+{
+    (void)emu;
+    freelocale((locale_t)loc);
+}
+EXPORT void* my___uselocale(x64emu_t* emu, void* loc)
+{
+    (void)emu;
+    return (void*)uselocale((locale_t)loc);
+}
+EXPORT char* my___nl_langinfo_l(x64emu_t* emu, int item, void* loc)
+{
+    (void)emu; (void)loc;
+    return nl_langinfo(item);
+}
+EXPORT int my___wctype_l(x64emu_t* emu, const char* property, void* loc)
+{
+    (void)emu; (void)loc;
+    return (int)wctype(property);
+}
+EXPORT unsigned my___towupper_l(x64emu_t* emu, unsigned wc, void* loc)
+{
+    (void)emu; (void)loc;
+    return (unsigned)towupper((wint_t)wc);
+}
+EXPORT unsigned my___towlower_l(x64emu_t* emu, unsigned wc, void* loc)
+{
+    (void)emu; (void)loc;
+    return (unsigned)towlower((wint_t)wc);
+}
+EXPORT int my___iswctype_l(x64emu_t* emu, unsigned wc, int desc, void* loc)
+{
+    (void)emu; (void)loc;
+    return iswctype((wint_t)wc, (wctype_t)desc);
+}
+EXPORT int my___strcoll_l(x64emu_t* emu, const char* s1, const char* s2, void* loc)
+{
+    (void)emu; (void)loc;
+    return strcoll(s1, s2);
+}
+EXPORT size_t my___strxfrm_l(x64emu_t* emu, char* dest, const char* src, size_t n, void* loc)
+{
+    (void)emu; (void)loc;
+    return strxfrm(dest, src, n);
+}
+EXPORT int my___wcscoll_l(x64emu_t* emu, const wchar_t* s1, const wchar_t* s2, void* loc)
+{
+    (void)emu; (void)loc;
+    return wcscoll(s1, s2);
+}
+EXPORT size_t my___wcsxfrm_l(x64emu_t* emu, wchar_t* dest, const wchar_t* src, size_t n, void* loc)
+{
+    (void)emu; (void)loc;
+    return wcsxfrm(dest, src, n);
+}
+EXPORT size_t my___strftime_l(x64emu_t* emu, char* s, size_t max, const char* fmt, const void* tm, void* loc)
+{
+    (void)emu; (void)loc;
+    return strftime(s, max, fmt, (const struct tm*)tm);
+}
+EXPORT size_t my___wcsftime_l(x64emu_t* emu, wchar_t* s, size_t max, const wchar_t* fmt, const void* tm, void* loc)
+{
+    (void)emu; (void)loc;
+    return wcsftime(s, max, fmt, (const struct tm*)tm);
+}
+EXPORT char* my_bind_textdomain_codeset(x64emu_t* emu, const char* domain, const char* codeset)
+{
+    (void)emu; (void)domain; (void)codeset;
+    return NULL;
+}
+EXPORT char* my_dgettext(x64emu_t* emu, const char* domain, const char* msgid)
+{
+    (void)emu; (void)domain;
+    return (char*)msgid;
+}
+EXPORT char* my___dgettext(x64emu_t* emu, const char* domain, const char* msgid)
+{
+    (void)emu; (void)domain;
+    return (char*)msgid;
+}
+
+#include <ctype.h>
+#include <errno.h>
+#include <stdlib.h>
+
+// __errno_location — glibc returns &errno; Bionic uses __errno()
+static int* my_errno_loc_impl(void) { return __errno(); }
+EXPORT void* my___errno_location(x64emu_t* emu) { (void)emu; return (void*)__errno(); }
+
+// __ctype_b_loc / __ctype_tolower_loc / __ctype_toupper_loc
+static const unsigned short int ctype_b_table[384];
+static const int ctype_tolower_table[384];
+static const int ctype_toupper_table[384];
+static int ctype_tables_initialized = 0;
+static unsigned short int ctype_b_data[384];
+static int ctype_tolower_data[384];
+static int ctype_toupper_data[384];
+static const unsigned short int *ctype_b_ptr;
+static const int *ctype_tolower_ptr;
+static const int *ctype_toupper_ptr;
+
+static void init_ctype_tables(void) {
+    if (ctype_tables_initialized) return;
+    // glibc tables are indexed by (c + 128) for c in [-128, 255]
+    for (int i = 0; i < 384; i++) {
+        int c = i - 128;
+        unsigned short int flags = 0;
+        if (c >= 'A' && c <= 'Z') flags |= 0x0001 | 0x0400; // _ISupper | _ISalpha
+        if (c >= 'a' && c <= 'z') flags |= 0x0002 | 0x0400; // _ISlower | _ISalpha
+        if (c >= '0' && c <= '9') flags |= 0x0800;            // _ISdigit
+        if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9')) flags |= 0x0008; // _ISalnum
+        if (c >= 0 && c <= 0x7f) flags |= 0; // basic
+        if (c == ' ' || (c >= 0x09 && c <= 0x0d)) flags |= 0x2000; // _ISspace
+        if (c >= 0x20 && c <= 0x7e) flags |= 0x4000; // _ISprint
+        if (c == ' ') flags |= 0x0100; // _ISblank
+        if ((c >= 0x00 && c <= 0x1f) || c == 0x7f) flags |= 0x0200; // _IScntrl
+        if ((c >= 0x21 && c <= 0x2f) || (c >= 0x3a && c <= 0x40) || (c >= 0x5b && c <= 0x60) || (c >= 0x7b && c <= 0x7e)) flags |= 0x0004; // _ISpunct
+        if ((c >= 0x21 && c <= 0x7e)) flags |= 0x0010; // _ISgraph
+        if ((c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F') || (c >= '0' && c <= '9')) flags |= 0x1000; // _ISxdigit
+        ctype_b_data[i] = flags;
+        ctype_tolower_data[i] = (c >= 'A' && c <= 'Z') ? c + 32 : c;
+        ctype_toupper_data[i] = (c >= 'a' && c <= 'z') ? c - 32 : c;
+    }
+    ctype_b_ptr = ctype_b_data + 128;
+    ctype_tolower_ptr = ctype_tolower_data + 128;
+    ctype_toupper_ptr = ctype_toupper_data + 128;
+    ctype_tables_initialized = 1;
+}
+
+EXPORT void** my___ctype_b_loc(x64emu_t* emu) {
+    (void)emu;
+    init_ctype_tables();
+    return (void**)&ctype_b_ptr;
+}
+EXPORT void** my___ctype_tolower_loc(x64emu_t* emu) {
+    (void)emu;
+    init_ctype_tables();
+    return (void**)&ctype_tolower_ptr;
+}
+EXPORT void** my___ctype_toupper_loc(x64emu_t* emu) {
+    (void)emu;
+    init_ctype_tables();
+    return (void**)&ctype_toupper_ptr;
+}
+
+// bcmp — same as memcmp, removed from POSIX but glibc keeps it
+EXPORT int my_bcmp(x64emu_t* emu, const void* s1, const void* s2, size_t n) {
+    (void)emu; return memcmp(s1, s2, n);
+}
+// explicit_bzero
+EXPORT void my_explicit_bzero(x64emu_t* emu, void* s, size_t n) {
+    (void)emu; memset(s, 0, n);
+    __asm__ __volatile__("" ::: "memory");
+}
+// __rawmemchr — like memchr but no length limit
+EXPORT void* my___rawmemchr(x64emu_t* emu, const void* s, int c) {
+    (void)emu;
+    const unsigned char* p = (const unsigned char*)s;
+    while (*p != (unsigned char)c) p++;
+    return (void*)p;
+}
+// __xpg_basename
+EXPORT char* my___xpg_basename(x64emu_t* emu, char* path) {
+    (void)emu;
+    if (!path || !*path) return (char*)".";
+    char* p = path + strlen(path) - 1;
+    while (p > path && *p == '/') *p-- = '\0';
+    char* slash = strrchr(path, '/');
+    return slash ? slash + 1 : path;
+}
+// __xpg_strerror_r — glibc XPG variant returns int, Bionic strerror_r is GNU (returns char*)
+EXPORT int my___xpg_strerror_r(x64emu_t* emu, int errnum, char* buf, size_t buflen) {
+    (void)emu;
+    char* result = strerror_r(errnum, buf, buflen);
+    if (result != buf && buf && buflen > 0) {
+        strncpy(buf, result, buflen - 1);
+        buf[buflen - 1] = '\0';
+    }
+    return 0;
+}
+// getdtablesize
+EXPORT int my_getdtablesize(x64emu_t* emu) {
+    (void)emu; return sysconf(_SC_OPEN_MAX);
+}
+// wait3
+#include <sys/wait.h>
+#include <sys/resource.h>
+EXPORT int my_wait3(x64emu_t* emu, int* status, int options, void* rusage) {
+    (void)emu; return wait4(-1, status, options, (struct rusage*)rusage);
+}
+// wordexp — not in Bionic, stub with error
+EXPORT int my_wordexp(x64emu_t* emu, const char* s, void* p, int flags) {
+    (void)emu; (void)s; (void)p; (void)flags; return 1; /* WRDE_NOSPACE */
+}
+EXPORT void my_wordfree(x64emu_t* emu, void* p) { (void)emu; (void)p; }
+// __strtof_l / __strtod_l
+EXPORT float my___strtof_l(x64emu_t* emu, const char* s, char** endp, void* loc) {
+    (void)emu; (void)loc; return strtof(s, endp);
+}
+EXPORT double my___strtod_l(x64emu_t* emu, const char* s, char** endp, void* loc) {
+    (void)emu; (void)loc; return strtod(s, endp);
+}
+// __duplocale
+EXPORT void* my___duplocale(x64emu_t* emu, void* loc) {
+    (void)emu; return (void*)duplocale((locale_t)loc);
+}
+// __fdelt_chk — glibc fortified FD_SET bounds check
+#include <sys/select.h>
+EXPORT long my___fdelt_chk(x64emu_t* emu, long fd) {
+    (void)emu;
+    if (fd < 0 || fd >= FD_SETSIZE) {
+        abort();
+    }
+    return fd / (8 * (long)sizeof(long));
+}
+// __assert_fail — glibc assert handler
+EXPORT void my___assert_fail(x64emu_t* emu, const char* assertion, const char* file, unsigned int line, const char* function) {
+    (void)emu;
+    printf("Assertion failed: %s (%s:%u: %s)\n", assertion, file, line, function ? function : "?");
+    abort();
+}
+// bindtextdomain — stub, no gettext on Android
+EXPORT void* my_bindtextdomain(x64emu_t* emu, const char* domainname, const char* dirname) {
+    (void)emu; (void)dirname;
+    return (void*)domainname;
+}
 #else
 EXPORT const unsigned short int *my___ctype_b;
 EXPORT const int32_t *my___ctype_tolower;
@@ -4426,6 +4673,7 @@ void startTimedExit()
 
 EXPORT void my_exit(x64emu_t* emu, int code)
 {
+    printf_log(LOG_NONE, "*** GUEST CALLED exit(%d) from x64pc=0x%lx ***\n", code, (unsigned long)R_RIP);
     if(emu->flags.quitonexit) {
         emu->quit = 1;
         R_EAX = code;
@@ -4441,6 +4689,7 @@ EXPORT void my_exit(x64emu_t* emu, int code)
 
 EXPORT void my__exit(x64emu_t* emu, int code)
 {
+    printf_log(LOG_NONE, "*** GUEST CALLED _exit(%d) from x64pc=0x%lx ***\n", code, (unsigned long)R_RIP);
     if(emu->flags.quitonexit || emu->quit) {
         _exit(code);
     }
@@ -4449,7 +4698,7 @@ EXPORT void my__exit(x64emu_t* emu, int code)
     box64_exit_code = code;
     SerializeAllMapping();   // just to be safe
     // then call all the fini
-    
+
     _exit(code);
 }
 
@@ -4677,12 +4926,61 @@ __attribute__((weak)) int dn_skipname(const unsigned char* ptr, const unsigned c
 #endif
 EXPORT long my_sysconf(x64emu_t* emu, int what) {
     if(what==_SC_NPROCESSORS_ONLN) {
-        return box64_sysinfo.box64_ncpu;
+        long n = (long)box64_sysinfo.box64_ncpu;
+        if(n <= 0) n = 1;
+        printf_log(LOG_NONE, "*** my_sysconf(_SC_NPROCESSORS_ONLN) -> %ld ***\n", n);
+        return n;
     }
     if(what==_SC_NPROCESSORS_CONF) {
-        return box64_sysinfo.box64_ncpu;
+        long n = (long)box64_sysinfo.box64_ncpu;
+        if(n <= 0) n = 1;
+        printf_log(LOG_NONE, "*** my_sysconf(_SC_NPROCESSORS_CONF) -> %ld ***\n", n);
+        return n;
     }
     return sysconf(what);
+}
+
+/* sched_getaffinity wrapper. Inside proot on Android, the native call can
+ * return an empty mask or fail with EINVAL (bionic rejects cpusetsize<sizeof(long))
+ * which causes CoreCLR's Environment.ProcessorCount to be 0, which then makes
+ * MoonSharp's ConcurrentDictionary throw ArgumentOutOfRangeException and
+ * Polytoria's ScriptService.Awake() nulls out → downstream SIGSEGV.
+ *
+ * Always succeed by synthesizing a mask with box64_ncpu bits set. */
+EXPORT int my_sched_getaffinity(x64emu_t* emu, int pid, size_t cpusetsize, void* mask)
+{
+    printf_log(LOG_NONE, "*** my_sched_getaffinity(pid=%d, cpusetsize=%zu, mask=%p) box64_ncpu=%llu ***\n",
+               pid, cpusetsize, mask, (unsigned long long)box64_sysinfo.box64_ncpu);
+    if (!mask || cpusetsize == 0) {
+        errno = EINVAL;
+        return -1;
+    }
+    int n = (int)box64_sysinfo.box64_ncpu;
+    if (n <= 0) n = 1;
+    memset(mask, 0, cpusetsize);
+    unsigned char* p = (unsigned char*)mask;
+    size_t bits = cpusetsize * 8;
+    if ((size_t)n > (int)bits) n = (int)bits;
+    for (int i = 0; i < n; i++) {
+        p[i >> 3] |= (unsigned char)(1u << (i & 7));
+    }
+    return 0;
+}
+
+EXPORT int my_get_nprocs(x64emu_t* emu)
+{
+    int n = (int)box64_sysinfo.box64_ncpu;
+    if (n <= 0) n = 1;
+    printf_log(LOG_NONE, "*** my_get_nprocs() -> %d ***\n", n);
+    return n;
+}
+
+EXPORT int my_get_nprocs_conf(x64emu_t* emu)
+{
+    int n = (int)box64_sysinfo.box64_ncpu;
+    if (n <= 0) n = 1;
+    printf_log(LOG_NONE, "*** my_get_nprocs_conf() -> %d ***\n", n);
+    return n;
 }
 EXPORT long my___sysconf(x64emu_t* emu, int what) __attribute__((alias("my_sysconf")));
 

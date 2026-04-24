@@ -214,6 +214,10 @@ void InitializeSystemInfo(void)
     if (BOX64ENV(maxcpu) && box64_sysinfo.ncpu > (uint64_t)BOX64ENV(maxcpu)) {
         box64_sysinfo.box64_ncpu = (uint64_t)BOX64ENV(maxcpu);
     }
+    printf_log(LOG_NONE, "*** box64 InitializeSystemInfo: ncpu=%llu box64_ncpu=%llu cpuname=%s ***\n",
+               (unsigned long long)box64_sysinfo.ncpu,
+               (unsigned long long)box64_sysinfo.box64_ncpu,
+               box64_sysinfo.cpuname ? box64_sysinfo.cpuname : "(null)");
 }
 
 uint32_t helper_getcpu(x64emu_t* emu)

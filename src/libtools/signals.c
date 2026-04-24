@@ -81,10 +81,13 @@ static __thread int signal_jmpbuf_active = 0;
 uint64_t RunFunctionHandler(x64emu_t* emu, int* exit, int dynarec, x64_ucontext_t* sigcontext, uintptr_t fnc, int nargs, ...)
 {
     if(fnc==0 || fnc==1) {
-        va_list va;
-        va_start (va, nargs);
-        int sig = va_arg(va, int);
-        va_end (va);
+        int sig = -1;
+        if(nargs > 0) {
+            va_list va;
+            va_start (va, nargs);
+            sig = va_arg(va, int);
+            va_end (va);
+        }
         printf_log(LOG_NONE, "%04d|Warning, calling Signal %d function handler %s\n", GetTID(), sig, fnc?"SIG_IGN":"SIG_DFL");
         if(fnc==0) {
             printf_log(LOG_NONE, "Unhandled signal caught, aborting\n");
@@ -305,12 +308,17 @@ int my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigin
     void* xstate = (void*)frame;
     frame -= sizeof(siginfo_t);
     siginfo_t* info2 = (siginfo_t*)frame;
-    memcpy(info2, info, sizeof(siginfo_t));
     // try to fill some sigcontext....
     frame -= sizeof(x64_ucontext_t);
     x64_ucontext_t   *sigcontext = (x64_ucontext_t*)frame;
+    // set stack pointer
+    uint64_t pre_signal_rsp = R_RSP;
+    R_RSP = frame;
+    memcpy(info2, info, sizeof(siginfo_t));
     // get general register
     emu2mctx(&sigcontext->uc_mcontext, emu);
+
+    sigcontext->uc_mcontext.gregs[X64_RSP] = pre_signal_rsp;
     CLEAR_FLAG(F_TF);   // now clear TF flags inside the signal handler
     // get FloatPoint status
     sigcontext->uc_mcontext.fpregs = xstate;//(struct x64_libc_fpstate*)&sigcontext->xstate;
@@ -465,8 +473,6 @@ int my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigin
     GO(R9);
     GO(RBP);
     #undef GO
-    // set stack pointer
-    R_RSP = frame;
     // set frame pointer
     R_RBP = sigcontext->uc_mcontext.gregs[X64_RBP];
 
@@ -570,7 +576,7 @@ int my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigin
         #endif
         exit(ret);
     }
-    if(restorer)
+    if(restorer && restorer != (uintptr_t)1)   // 0 = unset, 1 = SIG_IGN sentinel; neither is a real restorer
         RunFunctionHandler(emu, &exits, 0, NULL, restorer, 0);
     relockMutex(Locks);
     return 0;
@@ -1276,6 +1282,15 @@ void my_sigactionhandler(int32_t sig, siginfo_t* info, void * ucntx)
         x64pc = R_RIP;
     }
     #endif
+    if(!db && x64pc >= 0x30000000 && x64pc < 0x40000000) {
+        if(sig==X64_SIGSEGV || sig==X64_SIGBUS || sig==X64_SIGILL || sig==X64_SIGABRT || sig==X64_SIGFPE) {
+            printf_log(LOG_DEBUG, "Fatal signal %d during native execution (pc=%p, x64pc=%p), cannot deliver\n", sig, pc, (void*)x64pc);
+            return;
+        }
+        printf_log(LOG_DEBUG, "Signal %d during native execution, delivering immediately\n", sig);
+        x64pc = R_RIP;
+        db = NULL;
+    }
     if(BOX64ENV(showsegv) && (sig!=10 || BOX64ENV(log)>LOG_INFO)) {
         printf_log(LOG_INFO, "%04d|sigaction handler for sig %d, pc=%p, x64pc=%p, db=%p%s", GetTID(), sig, pc, x64pc, db, db?"":"\n");
         #ifdef DYNAREC

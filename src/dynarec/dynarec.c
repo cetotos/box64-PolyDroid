@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <signal.h>
+#include <pthread.h>
 
 #include "os.h"
 #include "debug.h"
@@ -175,6 +177,17 @@ void EmuRun(x64emu_t* emu, int use_dynarec)
     #endif
     int is32bits = (emu->segs[_CS]==0x23);
     while(!(emu->quit)) {
+        // deliver signals deferred during native wrapper execution
+        if(emu->pending_signals) {
+            uint64_t pending = emu->pending_signals;
+            emu->pending_signals = 0;
+            for(int i = 0; i < 64 && pending; i++) {
+                if(pending & (1ULL << i)) {
+                    pending &= ~(1ULL << i);
+                    pthread_kill(pthread_self(), i + 1);
+                }
+            }
+        }
         if(!emu->jmpbuf || (emu->flags.need_jmpbuf && emu->jmpbuf!=jmpbuf)) {
             emu->jmpbuf = jmpbuf;
             #if defined(RV64) || defined(PPC64LE)

@@ -249,8 +249,13 @@ GO(pthread_rwlock_wrlock, iFp)
 GO(pthread_self, pFv)
 GO2(pthread_setaffinity_np@GLIBC_2.3.3, iFEpp, my_pthread_setaffinity_np_old)
 GOM(pthread_setaffinity_np, iFEpLp)
+#ifdef ANDROID
+GOM(pthread_setcancelstate, iFEip)
+GOM(pthread_setcanceltype, iFEip)
+#else
 GO(pthread_setcancelstate, iFip)
 GO(pthread_setcanceltype, iFip)
+#endif
 GO(pthread_setconcurrency, iFi)
 GO(pthread_setname_np, iFpp)
 GO(pthread_setschedparam, iFpip)

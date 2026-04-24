@@ -53,7 +53,11 @@ GOM(__asprintf, iFEppV)
 GOWM(asprintf, iFEppV)
 GOM(__asprintf_chk, iFEpipV)
 GO(__assert, vFppi)
+#ifdef ANDROID
+GOM(__assert_fail, vFEppup)
+#else
 GO(__assert_fail, vFppup)
+#endif
 GO(__assert_perror_fail, vFipup)
 GOM(atexit, iFEp)
 GO(atof, dFp)
@@ -74,13 +78,25 @@ GOWM(backtrace_symbols, pFEpi)
 //GO(__backtrace_symbols_fd, 
 GOWM(backtrace_symbols_fd, vFEpii)
 GOW(basename, pFp)
+#ifdef ANDROID
+GOM(bcmp, iFEppL)
+#else
 GO(bcmp, iFppL)
+#endif
 GO(bcopy, vFppL)
 //GO(bdflush, 
 GOW(bind, iFipu)
 GO(bindresvport, iFip)
+#ifdef ANDROID
+GOM(bindtextdomain, pFEpp)
+#else
 GOW(bindtextdomain, pFpp)
+#endif
+#ifdef ANDROID
+GOM(bind_textdomain_codeset, pFEpp)
+#else
 GOW(bind_textdomain_codeset, pFpp)
+#endif
 GOW(brk, iFp)
 //GO(__bsd_getpgrp, 
 GO2(bsd_signal, pFEip, my_signal)
@@ -199,13 +215,25 @@ DATA(_ctype_, 8)
 #else
 DATA(__ctype_b, 8)
 #endif
+#ifdef ANDROID
+GOM(__ctype_b_loc, pFEv)
+#else
 GO(__ctype_b_loc, pFv)
+#endif
 GO(__ctype_get_mb_cur_max, LFv)
 //GO(__ctype_init, 
 DATAM(__ctype_tolower, 8)
+#ifdef ANDROID
+GOM(__ctype_tolower_loc, pFEv)
+#else
 GO(__ctype_tolower_loc, pFv)
+#endif
 DATAM(__ctype_toupper, 8)
+#ifdef ANDROID
+GOM(__ctype_toupper_loc, pFEv)
+#else
 GO(__ctype_toupper_loc, pFv)
+#endif
 //DATAB(__curbrk, 
 GO(cuserid, pFp)
 GOM(__cxa_atexit, iFEppp)
@@ -228,8 +256,13 @@ GOW(dcngettext, pFpppLi)
 GOM(delete_module, iFEpu)
 GO(des_setparity, vFp)
 #endif
+#ifdef ANDROID
+GOM(__dgettext, pFEpp)
+GOM(dgettext, pFEpp)
+#else
 GO(__dgettext, pFpp)
 GOW(dgettext, pFpp)
+#endif
 GO(difftime, dFll)
 GO(dirfd, iFp)
 GO(dirname, pFp)
@@ -260,7 +293,11 @@ GOW(dup, iFi)
 GO(__dup2, iFii)
 GOW(dup2, iFii)
 GOW(dup3, iFiiO)
+#ifdef ANDROID
+GOM(__duplocale, pFEp)
+#else
 GO(__duplocale, pFp)
+#endif
 GOW(duplocale, pFp)
 GO(dysize, iFi)
 GOW(eaccess, iFpi)
@@ -318,7 +355,11 @@ GO(erand48, dFp)
 GOW(erand48_r, iFppp)
 GOM(err, vFEipV)
 //DATAB(errno, 
+#ifdef ANDROID
+GOM(__errno_location, pFEv)
+#else
 GO(__errno_location, pFv)
+#endif
 GOWM(error, vFEiipV)
 GOWM(error_at_line, vFEiipupV)
 //DATAB(error_message_count, 4)
@@ -356,7 +397,11 @@ GOWM(execvpe, iFEppp)
 GOM(_exit, vFEi)
 GOM(exit, vFEi)
 GOW(_Exit, vFi)
+#ifdef ANDROID
+GOM(explicit_bzero, vFEpL)
+#else
 GO(explicit_bzero, vFpL)
+#endif
 GO(__explicit_bzero_chk, vFpLL)
 GO(faccessat, iFipii)
 GOW(fallocate, iFiill)
@@ -379,7 +424,11 @@ GOWM(fcntl64, iFEiiN)
 GO(fcvt, pFdipp)
 GO(fcvt_r, iFdipppL)
 GO(fdatasync, iFi)
+#ifdef ANDROID
+GOM(__fdelt_chk, lFEl)
+#else
 GO(__fdelt_chk, LFL)
+#endif
 //GO(__fdelt_warn, 
 //GO(fdetach, 
 GO(fdopen, SFip)
@@ -473,7 +522,11 @@ GO(__fread_unlocked_chk, LFpLLLp)
 GO(free, vFp)
 GO(freeaddrinfo, vFp)
 GOW(freeifaddrs, vFp)
+#ifdef ANDROID
+GOM(__freelocale, vFEp)
+#else
 GO(__freelocale, vFp)
+#endif
 GOW(freelocale, vFp)
 GO(fremovexattr, iFip)
 GO(freopen, SFppS)
@@ -574,7 +627,11 @@ GO(getdirentries, lFipLp)
 GO(getdirentries64, lFipLp)
 GO(getdomainname, iFpL)
 //GO(__getdomainname_chk, 
+#ifdef ANDROID
+GOM(getdtablesize, iFEv)
+#else
 GOW(getdtablesize, iFv)
+#endif
 GOW(getegid, uFv)
 GO(getentropy, iFpL)
 GO(getenv, pFp)
@@ -644,8 +701,8 @@ GOW(getnetgrent_r, iFppppL)
 #else
 GO(getnetname, iFp)
 #endif
-GOW(get_nprocs, iFv)
-GOW(get_nprocs_conf, iFv)
+GOM(get_nprocs, iFEv)
+GOM(get_nprocs_conf, iFEv)
 GOM(getopt, iFipp)
 GOM(getopt_long, iFipppp)
 GOM(getopt_long_only, iFipppp)
@@ -1087,7 +1144,11 @@ GOW(iswcntrl, iFu)
 GOW(iswcntrl_l, iFup)
 //GO(__iswctype, 
 GOW(iswctype, iFuL)
+#ifdef ANDROID
+GOM(__iswctype_l, iFEuip)
+#else
 GO(__iswctype_l, iFuLL)
+#endif
 GOW(iswctype_l, iFuLp)
 GOW(iswdigit, iFu)
 //GO(__iswdigit_l, 
@@ -1399,7 +1460,11 @@ GOW(nanosleep, iFpp)
 GO(netname2host, iFppi)
 GO(netname2user, iFppppp)
 #endif
+#ifdef ANDROID
+GOM(__newlocale, pFEipp)
+#else
 GO(__newlocale, pFipp)
+#endif
 GOW(newlocale, pFipp)
 //GO(nfsservctl, 
 GOM(nftw, iFEppii)
@@ -1408,7 +1473,11 @@ GOW(ngettext, pFppL)
 GO(nice, iFi)
 //DATAB(_nl_domain_bindings, 
 GO(nl_langinfo, pFi)
+#ifdef ANDROID
+GOM(__nl_langinfo_l, pFEip)
+#else
 GO(__nl_langinfo_l, pFip)
+#endif
 GOW(nl_langinfo_l, pFip)
 DATAB(_nl_msg_cat_cntr, 4)
 GO(nrand48, lFp)
@@ -1641,7 +1710,11 @@ GO(rand, iFv)
 GOW(random, lFv)
 GOW(random_r, iFpp)
 GO(rand_r, iFp)
+#ifdef ANDROID
+GOM(__rawmemchr, pFEpi)
+#else
 GO(__rawmemchr, pFpi)
+#endif
 GO(rawmemchr, pFpi)
 GO(rcmd, iFpWpppp)
 GO(rcmd_af, iFpWppppW)
@@ -1766,7 +1839,7 @@ GOM(scanf, iFpV)
 GO(__sched_cpualloc, pFL)
 GO(__sched_cpucount, iFLp)
 GO(__sched_cpufree, vFp)
-GO(sched_getaffinity, iFiLp)
+GOM(sched_getaffinity, iFEiLp)
 GO(sched_getcpu, iFv)
 GO(__sched_getparam, iFip)
 GOW(sched_getparam, iFip)
@@ -1986,7 +2059,11 @@ GO(strchr, pFpi)
 GO(strchrnul, pFpi)
 GO(strcmp, iFpp)
 GO(strcoll, iFpp)
+#ifdef ANDROID
+GOM(__strcoll_l, iFEppp)
+#else
 GO(__strcoll_l, iFppp)
+#endif
 GOW(strcoll_l, iFppp)
 GO(strcpy, pFpp)
 GO(__strcpy_chk, pFppL)
@@ -2021,7 +2098,11 @@ GOD(strfromf64x, iFpLpD, strfromf32x)
 GOD(strfroml, iFpLpD, strfromd)
 GO(strfry, pFp)
 GO(strftime, LFpLpp)
+#ifdef ANDROID
+GOM(__strftime_l, LFEpLppp)
+#else
 GO(__strftime_l, LFpLppL)
+#endif
 GOW(strftime_l, LFpLppp)
 GO(strlen, LFp)
 GO(__strlcpy_chk, LFppLL)
@@ -2055,7 +2136,11 @@ GO(strspn, LFpp)
 GO(strstr, pFpp)
 GO(strtod, dFpp)
 GO(__strtod_internal, dFppi)
+#ifdef ANDROID
+GOM(__strtod_l, dFEppp)
+#else
 GO(__strtod_l, dFppp)
+#endif
 GOW(strtod_l, dFppp)
 //GO(__strtod_nan, 
 GO(strtof, fFpp)
@@ -2072,7 +2157,11 @@ GOW(strtof64_l, dFppp)
 GOWD(strtof64x, DFpp, strtof32x)
 GOWD(strtof64x_l, DFppp, strtof32x_l)
 GO(__strtof_internal, fFppi)
+#ifdef ANDROID
+GOM(__strtof_l, fFEppp)
+#else
 GO(__strtof_l, fFppL)
+#endif
 GOW(strtof_l, fFppp)
 //GO(__strtof_nan, 
 GO(strtoimax, IFppi)
@@ -2115,7 +2204,11 @@ GOW(strtouq, UFppi)
 //GO(__strverscmp, 
 GOW(strverscmp, iFpp)
 GO(strxfrm, LFppL)
+#ifdef ANDROID
+GOM(__strxfrm_l, LFEppLp)
+#else
 GO(__strxfrm_l, LFppLL)
+#endif
 GO(strxfrm_l, LFppLp)
 //GO(stty, 
 #ifdef STATICBUILD
@@ -2288,10 +2381,18 @@ GOW(towctrans, uFup)
 //GO(__towctrans_l, 
 GOW(towctrans_l, uFupp)
 GOW(towlower, uFu)
+#ifdef ANDROID
+GOM(__towlower_l, uFEup)
+#else
 GO(__towlower_l, iFip)
+#endif
 GOW(towlower_l, uFup)
 GOW(towupper, uFu)
+#ifdef ANDROID
+GOM(__towupper_l, uFEup)
+#else
 GO(__towupper_l, iFip)
+#endif
 GOW(towupper_l, uFup)
 //GO(tr_break, 
 GO(truncate, iFpl)
@@ -2331,7 +2432,11 @@ GO(unshare, iFi)
 GOW(updwtmp, vFpp)
 GO(updwtmpx, vFpp)
 //GO(uselib, 
+#ifdef ANDROID
+GOM(__uselocale, pFEp)
+#else
 GO(__uselocale, pFp)
+#endif
 GOW(uselocale, pFp)
 #ifdef STATICBUILD
 //GO(user2netname, 
@@ -2389,7 +2494,11 @@ GOM(vwprintf, iFEpA)
 GOM(vwscanf, iFpA)
 GOW(__wait, iFp)
 GOW(wait, iFp)
+#ifdef ANDROID
+GOM(wait3, iFEpip)
+#else
 GOW(wait3, iFpip)
+#endif
 GOW(wait4, iFipip)
 GOW(waitid, iFuupi)
 GO(__waitpid, iFipi)
@@ -2411,14 +2520,22 @@ GO(wcschr, pFpi)
 GO(wcschrnul, pFpi)
 GO(wcscmp, iFpp)
 GOW(wcscoll, iFpp)
+#ifdef ANDROID
+GOM(__wcscoll_l, iFEppp)
+#else
 GO(__wcscoll_l, iFppp)
+#endif
 GOW(wcscoll_l, iFppp)
 GO(wcscpy, pFpp)
 GO(__wcscpy_chk, pFppL)
 GO(wcscspn, LFpp)
 GO(wcsdup, pFp)
 GO(wcsftime, LFpLpp)
+#ifdef ANDROID
+GOM(__wcsftime_l, LFEpLppp)
+#else
 GO(__wcsftime_l, LFpLppp)
+#endif
 GO(wcsftime_l, LFpLppp)
 GO(wcslen, LFp)
 GO(wcsncasecmp, iFppL)
@@ -2497,7 +2614,11 @@ GOW(wcstouq, UFppi)
 GOW(wcswcs, pFpp)
 GO(wcswidth, iFpL)
 GO(wcsxfrm, LFppL)
+#ifdef ANDROID
+GOM(__wcsxfrm_l, LFEppLp)
+#else
 GO(__wcsxfrm_l, LFppLL)
+#endif
 GO(wcsxfrm_l, LFppLp)
 GO(wctob, iFu)
 GO(wctomb, iFpi)
@@ -2507,7 +2628,11 @@ GOW(wctrans, pFp)
 GOW(wctrans_l, pFpp)
 GOW(wctype, LFp)
 GOW(wctype_l, LFpp)
+#ifdef ANDROID
+GOM(__wctype_l, iFEpp)
+#else
 GO(__wctype_l, LFpp)
+#endif
 GO(wcwidth, iFi)
 GO(wmemchr, pFpiL)
 GO(wmemcmp, iFppL)
@@ -2519,8 +2644,16 @@ GOW(wmempcpy, pFppL)
 //GO(__wmempcpy_chk, 
 GO(wmemset, pFpiL)
 GO(__wmemset_chk, pFpuLL)
+#ifdef ANDROID
+GOM(wordexp, iFEppi)
+#else
 GO(wordexp, iFppi)
+#endif
+#ifdef ANDROID
+GOM(wordfree, vFEp)
+#else
 GO(wordfree, vFp)
+#endif
 //GO(__woverflow, 
 GOM(wprintf, iFEpV)
 GOM(__wprintf_chk, lFEipV)
@@ -2681,9 +2814,17 @@ GO(xdr_void, iFv)
 GOM(__xmknod, iFEipup)
 GOM(__xmknodat, iFEiipup)
 #endif
+#ifdef ANDROID
+GOM(__xpg_basename, pFEp)
+#else
 GO(__xpg_basename, pFp)
+#endif
 GOW(__xpg_sigpause, iFi)
+#ifdef ANDROID
+GOM(__xpg_strerror_r, iFEipL)
+#else
 GO(__xpg_strerror_r, pFipL)
+#endif
 //GOM(xprt_register, vFp)
 //GOM(xprt_unregister, vFp)
 GOM(__xstat, iFEipp)

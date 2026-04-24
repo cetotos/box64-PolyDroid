@@ -427,8 +427,9 @@ static void* find_DebugUtilsMessengerCallback_Fct(void* fct)
 #undef SUPER
 
 //#define PRE_INIT if(libGL) {lib->w.lib = dlopen(libGL, RTLD_LAZY | RTLD_GLOBAL); lib->path = box_strdup(libGL);} else
+#define ALTNAME "libvulkan_surface_shim.so"
 
-#define PRE_INIT           \
+#define PRE_INIT \
     if(BOX64ENV(novulkan)) \
         return -1;
 

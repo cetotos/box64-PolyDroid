@@ -105,6 +105,7 @@ typedef struct x64emu_s {
     int         exit;
     forkpty_t*  forkpty_info;
     emu_flags_t flags;
+    volatile uint64_t pending_signals;  // bitmask of signals deferred during native execution
     x64test_t   test;       // used for dynarec testing
     // scratch stack, used for alignment of double and 64bits ints on arm. 200 elements should be enough
     __int128_t dummy_align; // here to have scratch 128bits aligned

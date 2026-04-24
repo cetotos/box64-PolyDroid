@@ -603,7 +603,6 @@
 #() iFuuu
 #() iFuuU
 #() iFuup
-#() iFuLL
 #() iFuLp
 #() iFupi
 #() iFupI
@@ -792,7 +791,6 @@
 #() fFffp
 #() fFlpl
 #() fFppi
-#() fFppL
 #() fFppp
 #() dFuud
 #() dFddd
@@ -1160,6 +1158,7 @@
 #() iFEiiu
 #() iFEiip
 #() iFEiiN
+#() iFEiLp
 #() iFEipp
 #() iFEipV
 #() iFEipA
@@ -2222,7 +2221,6 @@
 #() LFpLpLi
 #() LFpLpLp
 #() LFpLppu
-#() LFpLppL
 #() LFpLppp
 #() LFppuup
 #() LFpplLp
@@ -4121,6 +4119,18 @@
 #!defined(NOALIGN) iFEipii
 #!defined(NOALIGN) iFEipiip
 #!defined(NOALIGN) iFEipipp
+#defined(ANDROID) lFEl
+#defined(ANDROID) vFEpL
+#defined(ANDROID) uFEup
+#defined(ANDROID) iFEipL
+#defined(ANDROID) iFEuip
+#defined(ANDROID) fFEppp
+#defined(ANDROID) dFEppp
+#defined(ANDROID) LFEppLp
+#defined(ANDROID) LFEpLppp
+#!defined(ANDROID) iFuLL
+#!defined(ANDROID) fFppL
+#!defined(ANDROID) LFpLppL
 #!defined(STATICBUILD) lFiN
 #!defined(STATICBUILD) iFEpu
 #!defined(STATICBUILD) iFlip
@@ -4134,7 +4144,6 @@
 #!defined(STATICBUILD) iFEpipppL
 #!defined(STATICBUILD) iFiiULippp
 #!defined(STATICBUILD) lFpLpdddddd
-#defined(PPC64LE) iFEiLp
 #!defined(PPC64LE) iFiLN
 #() vFEv -> vFE
 #() iFEv -> iFE
@@ -4149,6 +4158,7 @@
 #() iFEpuvvppp -> iFEpuppp
 wrappedalure:
 wrappedalut:
+wrappedandroidshmem:
 wrappedanl:
 wrappedatk:
 - vFp:
@@ -5384,8 +5394,13 @@ wrappedlibc:
   - _ITM_deregisterTMCloneTable
   - _ZGTtdlPv
   - __cxa_finalize
+  - __freelocale
+  - wordfree
 - iFv:
   - fork
+  - get_nprocs
+  - get_nprocs_conf
+  - getdtablesize
   - vfork
 - iFi:
   - iopl
@@ -5410,13 +5425,23 @@ wrappedlibc:
 - lFi:
   - __sysconf
   - sysconf
+- lFl:
+  - __fdelt_chk
 - LFL:
   - getauxval
+- pFv:
+  - __ctype_b_loc
+  - __ctype_tolower_loc
+  - __ctype_toupper_loc
+  - __errno_location
 - pFL:
   - _ZGTtnaX
   - _ZGTtnam
 - pFp:
   - __deregister_frame_info
+  - __duplocale
+  - __uselocale
+  - __xpg_basename
   - mallinfo
   - mallinfo2
 - vFpi:
@@ -5427,6 +5452,8 @@ wrappedlibc:
   - siglongjmp
 - vFpu:
   - _ITM_registerTMCloneTable
+- vFpL:
+  - explicit_bzero
 - vFpp:
   - __register_frame_info
   - _obstack_free
@@ -5457,6 +5484,7 @@ wrappedlibc:
   - munmap
 - iFpp:
   - __vprintf_chk
+  - __wctype_l
   - dl_iterate_phdr
   - execv
   - execvp
@@ -5484,7 +5512,11 @@ wrappedlibc:
   - vwscanf
 - iFSp:
   - _IO_file_stat
+- uFup:
+  - __towlower_l
+  - __towupper_l
 - pFip:
+  - __nl_langinfo_l
   - __sysv_signal
   - bsd_signal
   - signal
@@ -5492,10 +5524,15 @@ wrappedlibc:
   - sysv_signal
 - pFpi:
   - __libc_dlopen_mode
+  - __rawmemchr
   - backtrace_symbols
 - pFpp:
+  - __dgettext
   - __libc_dlsym
   - __realpath_chk
+  - bind_textdomain_codeset
+  - bindtextdomain
+  - dgettext
   - realpath
 - SFpp:
   - fopen
@@ -5532,8 +5569,11 @@ wrappedlibc:
   - fsmount
 - iFiLp:
   - ioctl
+  - sched_getaffinity
 - iFipu:
   - fspick
+- iFipL:
+  - __xpg_strerror_r
 - iFipp:
   - __lxstat
   - __lxstat64
@@ -5548,6 +5588,10 @@ wrappedlibc:
   - dprintf
 - iFipA:
   - vdprintf
+- iFuip:
+  - __iswctype_l
+- iFpip:
+  - wait3
 - iFpLi:
   - mprotect
 - iFpLp:
@@ -5555,11 +5599,16 @@ wrappedlibc:
 - iFppi:
   - ftw
   - ftw64
+  - wordexp
+- iFppL:
+  - bcmp
 - iFppp:
   - __cxa_atexit
   - __cxa_thread_atexit_impl
+  - __strcoll_l
   - __vfprintf_chk
   - __vsscanf
+  - __wcscoll_l
   - execve
   - execvpe
 - iFppV:
@@ -5598,6 +5647,10 @@ wrappedlibc:
   - vfscanf
   - vfwprintf
   - vfwscanf
+- fFppp:
+  - __strtof_l
+- dFppp:
+  - __strtod_l
 - lFipV:
   - __wprintf_chk
 - lFppL:
@@ -5605,6 +5658,8 @@ wrappedlibc:
 - LFppL:
   - strlcat
   - strlcpy
+- pFipp:
+  - __newlocale
 - pFpip:
   - fts64_open
   - fts_open
@@ -5623,6 +5678,8 @@ wrappedlibc:
   - qsort
 - vFppiV:
   - makecontext
+- vFppup:
+  - __assert_fail
 - vFpppp:
   - __libc_init
 - iFiiip:
@@ -5676,6 +5733,9 @@ wrappedlibc:
   - ptrace
 - lFppLL:
   - __readlink_chk
+- LFppLp:
+  - __strxfrm_l
+  - __wcsxfrm_l
 - vFpiipV:
   - argp_failure
 - vFpLLpp:
@@ -5712,6 +5772,9 @@ wrappedlibc:
   - __vswprintf_chk
 - lFippLL:
   - __readlinkat_chk
+- LFpLppp:
+  - __strftime_l
+  - __wcsftime_l
 - pFpLLiN:
   - mremap
 - pFppLLp:
@@ -6188,6 +6251,9 @@ wrappedlibpthread:
 - vFpi:
   - _pthread_cleanup_pop
   - _pthread_cleanup_pop_restore
+- iFip:
+  - pthread_setcancelstate
+  - pthread_setcanceltype
 - iFpi:
   - __pthread_mutexattr_settype
   - pthread_attr_setdetachstate

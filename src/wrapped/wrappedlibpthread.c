@@ -61,6 +61,21 @@ EXPORT void my___pthread_initialize()
     // nothing, the lib initialize itself now
 }
 
+#ifdef ANDROID
+EXPORT int my_pthread_setcancelstate(x64emu_t* emu, int state, int* oldstate)
+{
+    (void)emu;
+    if (oldstate) *oldstate = 0;  // PTHREAD_CANCEL_ENABLE
+    return 0;
+}
+EXPORT int my_pthread_setcanceltype(x64emu_t* emu, int type, int* oldtype)
+{
+    (void)emu;
+    if (oldtype) *oldtype = 0;
+    return 0;
+}
+#endif
+
 #ifdef STATICBUILD
 #include <semaphore.h>
 #include <signal.h>
