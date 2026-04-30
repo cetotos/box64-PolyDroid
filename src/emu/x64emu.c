@@ -56,7 +56,7 @@ static void internalX64Setup(x64emu_t* emu, box64context_t *context, uintptr_t s
     emu->size_stack = stacksize;
     // set default value
     R_RIP = start;
-    R_RSP = ((stack + stacksize) & ~15ULL) - 16;
+    R_RSP = ((stack + stacksize) & ~15ULL) - 8192;
     #ifdef BOX32
     if(box64_is32bits) {
         if(stack>=0x100000000LL) {
