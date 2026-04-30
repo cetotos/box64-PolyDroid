@@ -1699,6 +1699,20 @@ static void atfork_child_dynarec_prot(void)
     #endif
 }
 #endif
+static void my_box64_sigsys_handler(int32_t sig, siginfo_t* info, void* ucntx)
+{
+    (void)sig; (void)ucntx;
+    int call = info ? info->si_syscall : -1;
+    int arch = info ? info->si_arch : 0;
+    void* addr = info ? info->si_call_addr : NULL;
+    int code = info ? info->si_code : 0;
+    printf_log(LOG_NONE,
+        "SIGSYS: seccomp blocked host syscall=%d arch=0x%x addr=%p si_code=%d\n",
+        call, arch, addr, code);
+    fflush(stdout); fflush(stderr);
+    _exit(159);
+}
+
 void init_signal_helper(box64context_t* context)
 {
     // setup signal handling
@@ -1718,6 +1732,9 @@ void init_signal_helper(box64context_t* context)
     action.sa_flags = SA_SIGINFO | SA_RESTART | SA_NODEFER;
     action.sa_sigaction = my_box64signalhandler;
     sigaction(SIGABRT, &action, NULL);
+    action.sa_flags = SA_SIGINFO | SA_NODEFER;
+    action.sa_sigaction = my_box64_sigsys_handler;
+    sigaction(SIGSYS, &action, NULL);
 
     pthread_once(&sigstack_key_once, sigstack_key_alloc);
 #ifdef USE_SIGNAL_MUTEX
